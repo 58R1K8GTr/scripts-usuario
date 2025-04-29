@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "rofi_extra_programs"
+version = "0.1.0"
+description = ""
+authors = ["."]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.14"
+click = "^8.1.8"
+pyinstaller = "^6.13.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
