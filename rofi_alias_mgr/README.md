@@ -12,9 +12,6 @@ Antes de rodar é necessário compilar. Ele já será movido para o local corret
 ```
 
 ## Como rodar?
-Apenas digite o nome do programa
-```bash
-rofi-alias-mgr --help
-rofi-alias-mgr -a
-rofi-alias-mgr --atualizar
-```
+- `rofi-alias-mgr --help` obtem ajuda.
+- `rofi-alias-mgr` verifica se houve atualizações.
+- `rofi-alias-mgr -a (--atualizar)` verifica atualizações e escreve nos arquivos.
