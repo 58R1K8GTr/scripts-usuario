@@ -6,7 +6,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import sys
 
-from rich_click import echo
+from rich import print as rich_print
 
 
 REGIAO = ZoneInfo('localtime')
@@ -18,10 +18,10 @@ def mtime_arquivo(arquivo: Path) -> datetime:
         tempo = arquivo.stat().st_mtime
         return datetime.fromtimestamp(tempo, REGIAO)
     except FileNotFoundError as erro:
-        echo(erro)
-        echo(
+        rich_print(f"[red]{erro}[/]")
+        rich_print(
             '[red]Instale os dotfiles primeiro ou crie '
-            'arquivos aliases.[/red]'
+            'arquivos aliases.[/]'
         )
     sys.exit(1)
 

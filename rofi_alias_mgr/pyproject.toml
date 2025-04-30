@@ -8,7 +8,9 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.12,<3.14"
 pyinstaller = "^6.13.0"
-rich-click = "^1.8.8"
+rich = "^14.0.0"
+click = "^8.1.8"
+pytest = "^8.3.5"
 
 
 [build-system]

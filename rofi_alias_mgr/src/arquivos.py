@@ -8,7 +8,7 @@ from hashlib import sha256
 from json import load, dump
 import sys
 
-from rich_click import echo
+from rich import print as rich_print
 
 from src.tipos import JsonTipo, ListaDatetimeTipo
 from src.manipulacao_dados import gerar_dict_alias
@@ -33,13 +33,13 @@ def grep_arquivos(
         ))
         return '\n'.join(aliases)
     except FileNotFoundError as erro:
-        echo(f"[red]{erro}[/red]")
-        echo(
+        rich_print(f"[red]{erro}[/]")
+        rich_print(
             '[yellow]Instale os dotfiles primeiro ou crie os '
-            'arquivos aliases.[/yellow]'
+            'arquivos aliases.[/]'
         )
     except PermissionError as erro:
-        echo(f"[red]{erro}[/red]")
+        rich_print(f"[red]{erro}[/]")
     sys.exit(1)
 
 
@@ -53,10 +53,10 @@ def obter_comandos() -> str:
 def escrever_json(conteudo: JsonTipo, local: Path) -> None:
     """Salva o conteúdo em um json."""
     try:
-        with local.open('r') as arquivo:
+        with local.open('w') as arquivo:
             return dump(conteudo, arquivo, indent=4, ensure_ascii=False)
     except PermissionError as erro:
-        echo(f"[red]{erro}[/red]")
+        rich_print(f"[red]{erro}[/]")
     sys.exit(1)
 
 
@@ -66,8 +66,14 @@ def ler_json(local: Path) -> JsonTipo:
         with local.open('r') as arquivo:
             conteudo: JsonTipo = load(arquivo)
             return conteudo
-    except (FileNotFoundError, PermissionError) as erro:
-        echo(f"[red]{erro}[/red]")
+    except FileNotFoundError as erro:
+        rich_print(f"[red]{erro}[/]")
+        rich_print(f"[green]Criando arquivo {local}.[/]")
+        local.parent.mkdir(exist_ok=True)
+        local.write_text('{"aliases": {}}')
+        return {'aliases': {}}
+    except PermissionError as erro:
+        rich_print(f"[red]{erro}[/]")
     sys.exit(1)
 
 

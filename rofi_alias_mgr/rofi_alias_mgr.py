@@ -1,7 +1,7 @@
 """Programa que auxilia o rofi, facilitando-o."""
 
 
-from rich_click import command, option, echo
+from click import command, option
 
 from src.arquivos import ler_json, atualizar_hashs, escrever_aliases
 from src.datas import mtime_arquivo, mtime_json
@@ -16,7 +16,7 @@ def run_rofi_alias_manager(atualizar) -> None:
     status = verificar_modificacoes()
     if atualizar:
         return atualizar_arquivos(status)
-    return echo(status)
+    return print(status)
 
 
 def atualizar_arquivos(status: StatusModificacaoTipo) -> None:
@@ -30,7 +30,10 @@ def verificar_modificacoes() -> StatusModificacaoTipo:
     """Verifica modificações dos arquivos .bash_aliases."""
     novas_modificacoes = list(map(mtime_arquivo, HOME_ALIASES))
     dados_json = ler_json(ROFI_JSON)
-    antigas_modificacoes = list(map(mtime_json, dados_json['aliases']))
+    aliases = dados_json['aliases']
+    antigas_modificacoes = list(map(
+        lambda x: mtime_json(aliases[x]['mtime']), aliases
+    ))
     arquivos_alterados = any((
         len(antigas_modificacoes) == 0,
         any(
