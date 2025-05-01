@@ -95,11 +95,33 @@ def hashear_arquivo(local: Path) -> str:
     return item_hash.hexdigest()
 
 
-def atualizar_hashs(novas_modificacoes: ListaDatetimeTipo) -> None:
+def atualizar_hashs(mtimes: ListaDatetimeTipo) -> None:
     """Atualiza os hashes no arquivo json."""
     hashs = map(hashear_arquivo, HOME_ALIASES)
-    mtimes = map(lambda x: x.isoformat(), novas_modificacoes)
     dict_aliases = gerar_dict_alias(zip(
         HOME_ALIASES_ENCURTADO, mtimes, hashs
     ))
     escrever_json(dict_aliases, ROFI_JSON)
+
+
+def criar_arquivo(texto: str, local: Path) -> None:
+    """Cria arquivos com o mínimo de erros possíveis."""
+    try:
+        local.parent.mkdir(parents=True, exist_ok=True)
+        local.write_text(texto)
+    except FileExistsError as erro:
+        rich_print(f"[red]{erro}[/]")
+    except (PermissionError, OSError) as erro:
+        rich_print(f"[red]{erro}[/]")
+        sys.exit(1)
+
+
+def remover_arquivo(local: Path) -> None:
+    """Remove um arquivo com o mínimo de erros possíveis."""
+    try:
+        local.unlink()
+    except FileNotFoundError as erro:
+        rich_print(f"[red]{erro}[/]")
+    except (PermissionError, OSError) as erro:
+        rich_print(f"[red]{erro}[/]")
+        sys.exit(1)

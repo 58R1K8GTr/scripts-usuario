@@ -1,29 +1,49 @@
 """Programa que auxilia o rofi, facilitando-o."""
 
 
-from click import command, option
+from click import (
+    command, option, get_current_context
+)
+from rich import print as rich_print
 
 from src.arquivos import ler_json, atualizar_hashs, escrever_aliases
 from src.datas import mtime_arquivo, mtime_json
 from src.constantes import HOME_ALIASES, ROFI_JSON
 from src.tipos import StatusModificacaoTipo
+from src.comandos import criar_rodar_daemon, desativar_remover_daemon
 
 
 @command()
 @option('-a', '--atualizar', is_flag=True)
-def run_rofi_alias_manager(atualizar) -> None:
+@option('-v', '--verificar', is_flag=True)
+@option('-d', '--ativar-daemon', is_flag=True)
+@option('-D', '--desativar-daemon', is_flag=True)
+def run_rofi_alias_manager(
+    atualizar, verificar, ativar_daemon, desativar_daemon
+) -> None:
     """Verifica e atualiza o arquivo aliases para usar no rofi."""
-    status = verificar_modificacoes()
-    if atualizar:
-        return atualizar_arquivos(status)
-    return print(status)
+    match [verificar, atualizar, ativar_daemon, desativar_daemon]:
+        case (True, False, _, _):  # verificar
+            status = verificar_modificacoes()
+            rich_print(f"[green]{status}[/]")
+        case (True, True, _, _):  # verificar e atualizar
+            status = verificar_modificacoes()
+            atualizar_arquivos(status)
+            rich_print(f"[green]{status}[/]")
+        case (_, _, True, False):  # ativar daemon
+            criar_rodar_daemon()
+        case (_, _, False, True):  # desativar daemon
+            desativar_remover_daemon()
+        case _:
+            contexto = get_current_context()
+            rich_print(contexto.get_help())
 
 
 def atualizar_arquivos(status: StatusModificacaoTipo) -> None:
     """Atualiza os arquivos json e aliases.txt."""
     if status["arquivos_alterados"]:
         escrever_aliases()
-        atualizar_hashs(status['novas_modificacoes'])
+        atualizar_hashs(status['mtimes'])
 
 
 def verificar_modificacoes() -> StatusModificacaoTipo:
@@ -42,11 +62,13 @@ def verificar_modificacoes() -> StatusModificacaoTipo:
             in zip(novas_modificacoes, antigas_modificacoes)
         )
     ))
+    mtimes = list(map(lambda x: x.isoformat(), novas_modificacoes))
     status: StatusModificacaoTipo = {
         "arquivos_alterados": arquivos_alterados,
-        "novas_modificacoes": novas_modificacoes
+        "mtimes": mtimes
     }
     return status
 
 
-run_rofi_alias_manager.main()
+if __name__ == '__main__':
+    run_rofi_alias_manager.main()
