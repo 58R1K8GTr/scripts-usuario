@@ -5,6 +5,16 @@ Programa que faz a verificação se os arquivos .bash_aliases mudaram, caso sim,
 
 Esses aliases são atalhos abreviados para executar programas com comandos específivos de maneira rápida, seja no terminal ou no próprio lançador de aplicativos (rofi), e agora com esse programa, será mais rápido a execução desses programas.
 
+Ele não foi feito para rodar nos scripts do rofi mas sim um auxiliar que filtra os comandos que quero com base em um padrão.
+
+## O que é filtrado pelo comando e jogado no aliases.txt?
+Qualquer alias que contenha um comentário na linha acima contendo `# gui:`.
+
+## Exemplo de arquivo script shell que lê os comandos para o rofi:
+arquivo | local
+--- | ---
+[rofi-shell.sh](arquivos_exemplo/rofi-shell.sh) | `~/.config/rofi/scripts/`
+
 ## Como criar o executável?
 Não é necessário criar o executável, mas se quiser algo mais automático no terminal:
 ```bash
@@ -41,4 +51,3 @@ mypy | Tipagem no código.
 pyinstaller | Gerar um executável
 shell script | Otimizar tarefas como gerar e mover o executável.
 pytest | Testes automatizados.
-

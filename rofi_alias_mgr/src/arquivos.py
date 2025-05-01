@@ -46,7 +46,7 @@ def grep_arquivos(
 def obter_comandos() -> str:
     """Retorna os aliases filtrados dos arquivos .bash_aliases."""
     padrao_arquivo = '.bash_aliases*'
-    padrao_regex = r"#gui: .*\n[#.]*alias (.+)="
+    padrao_regex = r"#gui:.*\n[#.]*alias (.+)="
     return grep_arquivos(HOME, padrao_arquivo, padrao_regex)
 
 
