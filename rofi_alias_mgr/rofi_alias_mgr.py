@@ -21,7 +21,11 @@ from src.comandos import criar_rodar_daemon, desativar_remover_daemon
 def run_rofi_alias_manager(
     atualizar, verificar, ativar_daemon, desativar_daemon
 ) -> None:
-    """Verifica e atualiza o arquivo aliases para usar no rofi."""
+    """
+    Verifica e atualiza o arquivo aliases para usar no rofi.\n
+    IMPORTANTE: necessário flags -va para atualizar!
+    """
+    erro = False
     match [verificar, atualizar, ativar_daemon, desativar_daemon]:
         case (True, False, _, _):  # verificar
             status = verificar_modificacoes()
@@ -30,13 +34,18 @@ def run_rofi_alias_manager(
             status = verificar_modificacoes()
             atualizar_arquivos(status)
             rich_print(f"[green]{status}[/]")
+        case (False, True, _, _):
+            rich_print('[red]Necessário flags -va para atualizar![/]\n')
+            erro = True
         case (_, _, True, False):  # ativar daemon
             criar_rodar_daemon()
         case (_, _, False, True):  # desativar daemon
             desativar_remover_daemon()
         case _:
-            contexto = get_current_context()
-            rich_print(contexto.get_help())
+            erro = True
+    if erro:
+        contexto = get_current_context()
+        rich_print(contexto.get_help())
 
 
 def atualizar_arquivos(status: StatusModificacaoTipo) -> None:

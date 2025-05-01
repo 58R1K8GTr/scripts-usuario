@@ -28,6 +28,8 @@ Não é necessário criar o executável, mas se quiser algo mais automático no 
 `rofi-alias-mgr`
 
 ## Flags:
+> __IMPORTANTE!__ flags -va precisam ser passadas para atualizar!
+
 flag | função
 --- | ---
 `--help` | obtem ajuda.
