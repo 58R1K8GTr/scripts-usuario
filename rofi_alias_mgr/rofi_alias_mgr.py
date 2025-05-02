@@ -1,6 +1,8 @@
 """Programa que auxilia o rofi, facilitando-o."""
 
 
+from json import dumps
+
 from click import (
     command, option, get_current_context
 )
@@ -25,27 +27,18 @@ def run_rofi_alias_manager(
     Verifica e atualiza o arquivo aliases para usar no rofi.\n
     IMPORTANTE: necessário flags -va para atualizar!
     """
-    erro = False
     match [verificar, atualizar, ativar_daemon, desativar_daemon]:
-        case (True, False, _, _):  # verificar
+        case [True, _, _, _]:
             status = verificar_modificacoes()
-            rich_print(f"[green]{status}[/]")
-        case (True, True, _, _):  # verificar e atualizar
-            status = verificar_modificacoes()
-            atualizar_arquivos(status)
-            rich_print(f"[green]{status}[/]")
-        case (False, True, _, _):
-            rich_print('[red]Necessário flags -va para atualizar![/]\n')
-            erro = True
-        case (_, _, True, False):  # ativar daemon
+            if atualizar:
+                atualizar_arquivos(status)
+            rich_print(f"[green]{dumps(status, indent=4)}[/]")
+        case [_, _, True, False]:
             criar_rodar_daemon()
-        case (_, _, False, True):  # desativar daemon
+        case [_, _, False, True]:
             desativar_remover_daemon()
         case _:
-            erro = True
-    if erro:
-        contexto = get_current_context()
-        rich_print(contexto.get_help())
+            rich_print(get_current_context().get_help())
 
 
 def atualizar_arquivos(status: StatusModificacaoTipo) -> None:
