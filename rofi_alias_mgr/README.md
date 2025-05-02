@@ -15,6 +15,8 @@ arquivo | local
 --- | ---
 [rofi-shell.sh](arquivos_exemplo/rofi-shell.sh) | `~/.config/rofi/scripts/`
 
+> Obs: Para executar no rofi, leia a documentação do mesmo na seção scripts.
+
 ## Como criar o executável?
 Não é necessário criar o executável, mas se quiser algo mais automático no terminal:
 ```bash
