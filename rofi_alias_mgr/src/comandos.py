@@ -4,28 +4,41 @@
 from pathlib import Path
 import subprocess
 
-from src.textos import TEXTO_SERVICO_DESFORMATADO, TEXTO_TIMER
-from src.arquivos import criar_arquivo, remover_arquivo
+from rich import print as rich_print
+
+from src.textos import (
+    TEXTO_SERVICO_OPCAO1_DESFORMATADO, TEXTO_TIMER2,
+    TEXTO_SERVICO_OPCAO2_DESFORMATADO
+)
+from src.arquivos import (
+    criar_arquivo, remover_arquivo, inotify_instalado
+)
 
 
+pasta_raiz = Path(__file__).parent.parent
 local_daemons = Path('~/.config/systemd/user').expanduser()
-local_script = Path(__file__).parent.parent / 'rofi_alias_mgr.py'
+local_script = pasta_raiz / 'rofi_alias_mgr.py'
 executavel = Path('~/.local/bin/rofi-alias-mgr').expanduser()
 local_daemon = local_daemons / 'rofi_alias_mgr_daemon.service'
 local_timer = local_daemons / 'rofi_alias_mgr_daemon.timer'
+local_inotifywait_sh = (
+    pasta_raiz / 'arquivos_exemplo/daemon-inotifywait.sh'
+)
+if executavel.exists():
+    COMANDO = f"{str(executavel)} --atualizar"
+else:
+    COMANDO = f"/usr/bin/python3 {local_script} --atualizar"
 
 
-def criar_rodar_daemon() -> None:
+def criar_rodar_daemon(inotifywait: bool) -> None:
     """Cria e roda o processo daemon."""
-    if executavel.exists():
-        linha = executavel.name
-    else:
-        linha = f"/usr/bin/python3 {local_script}"
-    texto_servico = TEXTO_SERVICO_DESFORMATADO.format(linha)
     # não sobreescrever caso o daemon estiver rodando
-    if not local_timer.exists():
-        criar_arquivo(texto_servico, local_daemon)
-        criar_arquivo(TEXTO_TIMER, local_timer)
+    if local_daemon.exists():
+        return rich_print('[red]Daemon existe, remova-o[/]')
+    if inotifywait:
+        _criar_inotifywait_daemon()
+    else:
+        _criar_normal_daemon()
     subprocess.run('systemctl --user daemon-reload'.split(), check=False)
     subprocess.run(
         f"systemctl --user enable --now {local_timer.name}".split(),
@@ -33,13 +46,30 @@ def criar_rodar_daemon() -> None:
     )
 
 
-def desativar_remover_daemon() -> None:
+def _criar_inotifywait_daemon() -> None:
+    """Cria o daemon que usa o programa inotifywait do inotify-tools."""
+    if inotify_instalado():
+        texto_servico = TEXTO_SERVICO_OPCAO1_DESFORMATADO.format(COMANDO)
+        criar_arquivo(texto_servico, local_daemon)
+    else:
+        rich_print(
+            '[red]Instale o inotify-tools ou semelhante na'
+            ' sua distro para funcionar.[/]'
+        )
+
+
+def _criar_normal_daemon() -> None:
+    """Cria o daemon que usa esse programa como padrão."""
+    texto_servico = TEXTO_SERVICO_OPCAO2_DESFORMATADO.format(COMANDO)
+    criar_arquivo(texto_servico, local_daemon)
+    criar_arquivo(TEXTO_TIMER2, local_timer)
+
+
+def desativar_remover_daemon(inotifywait: bool) -> None:
     """Remove e desativa o processo em daemon."""
-    desabilitar = f'systemctl --user disable --now {local_timer.name}'.split()
+    nome_servico = local_daemon.name if inotifywait else local_timer.name
+    desabilitar = f'systemctl --user disable --now {nome_servico}'.split()
     remover_arquivo(local_daemon)
     remover_arquivo(local_timer)
     subprocess.run(desabilitar, check=False)
     subprocess.run('systemctl --user daemon-reload'.split(), check=False)
-
-
-# ver o comando final do daemon e por que ele não rodou.

@@ -125,3 +125,8 @@ def remover_arquivo(local: Path) -> None:
     except (PermissionError, OSError) as erro:
         rich_print(f"[red]{erro}[/]")
         sys.exit(1)
+
+
+def inotify_instalado() -> bool:
+    """Retorna se o executável do inotifywait está instalado."""
+    return Path('/usr/bin/inotifywait').exists()

@@ -3,9 +3,7 @@
 
 from json import dumps
 
-from click import (
-    command, option, get_current_context
-)
+from click import group, option
 from rich import print as rich_print
 
 from src.arquivos import ler_json, atualizar_hashs, escrever_aliases
@@ -15,30 +13,49 @@ from src.tipos import StatusModificacaoTipo
 from src.comandos import criar_rodar_daemon, desativar_remover_daemon
 
 
-@command()
-@option('-a', '--atualizar', is_flag=True)
-@option('-v', '--verificar', is_flag=True)
-@option('-d', '--ativar-daemon', is_flag=True)
-@option('-D', '--desativar-daemon', is_flag=True)
-def run_rofi_alias_manager(
-    atualizar, verificar, ativar_daemon, desativar_daemon
-) -> None:
-    """
-    Verifica e atualiza o arquivo aliases para usar no rofi.\n
-    IMPORTANTE: necessário flags -va para atualizar!
-    """
-    match [verificar, atualizar, ativar_daemon, desativar_daemon]:
-        case [True, _, _, _]:
-            status = verificar_modificacoes()
-            if atualizar:
-                atualizar_arquivos(status)
-            rich_print(f"[green]{dumps(status, indent=4)}[/]")
-        case [_, _, True, False]:
-            criar_rodar_daemon()
-        case [_, _, False, True]:
-            desativar_remover_daemon()
-        case _:
-            rich_print(get_current_context().get_help())
+ordem = ['verificar', 'atualizar', 'ativar-daemon', 'desativar-daemon']
+
+
+@group()
+def run_rofi_alias_manager() -> None:
+    """Verifica e atualiza o arquivo aliases para usar no rofi."""
+
+
+@run_rofi_alias_manager.command()
+@option('-o', '--otimizado', is_flag=True)
+def ativar_daemon(otimizado: bool) -> None:
+    """Cria e ativa o daemon normal ou otimizado."""
+    criar_rodar_daemon(otimizado)
+
+
+@run_rofi_alias_manager.command()
+@option('-o', '--otimizado', is_flag=True)
+def desativar_daemon(otimizado: bool) -> None:
+    """Ativa ou desativa daemon otimizado."""
+    desativar_remover_daemon(otimizado)
+
+
+@run_rofi_alias_manager.command()
+def verificar():
+    """Verifica se houve modificações nos arquivos."""
+    status = verificar_modificacoes()
+    rich_print(f"[green]{dumps(status, indent=4)}[/]")
+
+
+@run_rofi_alias_manager.command()
+@option('-m', '--mostrar', is_flag=True)
+def atualizar(mostrar):
+    """Atualiza os arquivos de aliases, se necessário."""
+    status = verificar_modificacoes()
+    if mostrar:
+        rich_print(f"[green]{dumps(status, indent=4)}[/]")
+    if status["arquivos_alterados"]:
+        atualizar_arquivos(status)
+        rich_print("[green]Arquivos atualizados com sucesso![/]")
+    else:
+        rich_print(
+            "[yellow]Nenhuma modificação detectada. Nada foi atualizado.[/]"
+        )
 
 
 def atualizar_arquivos(status: StatusModificacaoTipo) -> None:
@@ -73,4 +90,4 @@ def verificar_modificacoes() -> StatusModificacaoTipo:
 
 
 if __name__ == '__main__':
-    run_rofi_alias_manager.main()
+    run_rofi_alias_manager()

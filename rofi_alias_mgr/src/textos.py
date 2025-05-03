@@ -1,19 +1,31 @@
-"""Textos para serem inseridos em arquivos posteriormente."""
+"""Textos em geral."""
 
 
 # flake8: noqa: E501
 
 
-TEXTO_SERVICO_DESFORMATADO = """\
+TEXTO_SERVICO_OPCAO1_DESFORMATADO = """\
+[Unit]
+Description=Serviço do rofi-alias-mgr
+
+[Service]
+ExecStart=inotifywait -m -e close_write ~/.bash_aliases* | while read caminho evento; do {}
+Restart=always
+
+[Install]
+WantedBy=default.target
+"""
+
+TEXTO_SERVICO_OPCAO2_DESFORMATADO = """\
 [Unit]
 Description=Serviço do rofi-alias-mgr
 
 [Service]
 Type=oneshot
-ExecStart={} --verificar --atualizar
+ExecStart={}
 """
 
-TEXTO_TIMER = """\
+TEXTO_TIMER2 = """\
 [Unit]
 Description=Timer para executar o rofi-alias-mgr a cada 5 horas
 

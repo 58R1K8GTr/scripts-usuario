@@ -10,12 +10,22 @@ Ele não foi feito para rodar nos scripts do rofi mas sim um auxiliar que filtra
 ## O que é filtrado pelo comando e jogado no aliases.txt?
 Qualquer alias que contenha um comentário na linha acima contendo `# gui:`.
 
-## Exemplo de arquivo script shell que lê os comandos para o rofi:
-arquivo | local
---- | ---
-[rofi-shell.sh](arquivos_exemplo/rofi-shell.sh) | `~/.config/rofi/scripts/`
+## Como rodar?
+### Sem executável:
+`python3 rofi-alias-mgr.py`
+### Com executável:
+`rofi-alias-mgr`
+> abaixo está escrito como gerar o executável.
 
-> Obs: Para executar no rofi, leia a documentação do mesmo na seção scripts.
+## Subcomandos e suas flags:
+
+comando | função | flag | função
+--- | --- | --- | ---
+\- | \- | `--help` | obtem ajuda.
+verificar | verifica se houve atualizações.
+atualizar | verifica atualizações e escreve nos arquivos. | `-m\|--mostrar` | retorna o resultado igual `verificar`.
+ativar-daemon | cria e ativa o processo daemon no systemd automaticamente. | `-o\|--otimizado` | ativa o daemon otimizado.
+desativar-daemon | desativa e remove o processo daemon no systemd automaticamente. | `-o\|--otimizado` | desativa o daemon otimizado.
 
 ## Como criar o executável?
 Não é necessário criar o executável, mas se quiser algo mais automático no terminal:
@@ -23,22 +33,18 @@ Não é necessário criar o executável, mas se quiser algo mais automático no 
 ./criar_executavel_e_mover.sh
 ```
 
-## Como rodar?
-### Sem executável:
-`python3 rofi-alias-mgr.py`
-### Com executável:
-`rofi-alias-mgr`
-
-## Flags:
-> __IMPORTANTE!__ flags -va precisam ser passadas para atualizar!
-
-flag | função
+## Exemplo de arquivo script shell que lê os comandos para o rofi:
+arquivo | local
 --- | ---
-`--help` | obtem ajuda.
-`-v (--verificar)` | verifica se houve atualizações.
-`-a (--atualizar)` | verifica atualizações e escreve nos arquivos.
-`-d (--ativar-daemon)` | cria e ativa o processo daemon no systemd automaticamente.
-`-D (--desativar-daemon)` | desativa e remove o processo daemon no systemd automaticamente.
+[rofi-shell.sh](arquivos_exemplo/rofi-shell.sh) | `~/.config/rofi/scripts/`
+
+> Obs: Para executar no rofi, leia a documentação do mesmo na seção scripts.
+
+
+## É necessário o processo em daemon?
+O daemon só serve para rodar o processo de atualização automaticamente em background. Caso queira fazer da sua maneira também é possível.
+
+É recomendado algo mais prático como o programa `inotifywait` do pacote `inotify-tools`.
 
 ## Informações extras:
 ### Libs usadas e suas funções no programa:
@@ -55,3 +61,6 @@ mypy | Tipagem no código.
 pyinstaller | Gerar um executável
 shell script | Otimizar tarefas como gerar e mover o executável.
 pytest | Testes automatizados.
+
+### Como eu misturo os arquivos `.desktop` com esses comandos no rofi?
+Eu uso um modo chamado _combi_, com ele eu consigo exibir tanto os programas padrões como os meus. Leia a documentação do rofi para tal.
