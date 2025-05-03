@@ -13,12 +13,13 @@ from src.tipos import StatusModificacaoTipo
 from src.comandos import criar_rodar_daemon, desativar_remover_daemon
 
 
-ordem = ['verificar', 'atualizar', 'ativar-daemon', 'desativar-daemon']
-
-
 @group()
 def run_rofi_alias_manager() -> None:
-    """Verifica e atualiza o arquivo aliases para usar no rofi."""
+    """
+    Verifica e atualiza o arquivo aliases para usar no rofi.
+
+    IMPORTANTE: utilize --help em cada comando para ver suas opções.
+    """
 
 
 @run_rofi_alias_manager.command()
