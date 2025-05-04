@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import subprocess
+from time import sleep
 
 from rich import print as rich_print
 
@@ -21,13 +22,10 @@ local_script = pasta_raiz / 'rofi_alias_mgr.py'
 executavel = Path('~/.local/bin/rofi-alias-mgr').expanduser()
 local_daemon = local_daemons / 'rofi_alias_mgr_daemon.service'
 local_timer = local_daemons / 'rofi_alias_mgr_daemon.timer'
-local_inotifywait_sh = (
-    pasta_raiz / 'arquivos_exemplo/daemon-inotifywait.sh'
-)
 if executavel.exists():
-    COMANDO = f"{str(executavel)} --atualizar"
+    COMANDO = f"{str(executavel)} atualizar"
 else:
-    COMANDO = f"/usr/bin/python3 {local_script} --atualizar"
+    COMANDO = f"/usr/bin/python3 {local_script} atualizar"
 
 
 def criar_rodar_daemon(inotifywait: bool) -> None:
@@ -37,11 +35,14 @@ def criar_rodar_daemon(inotifywait: bool) -> None:
         return rich_print('[red]Daemon existe, remova-o[/]')
     if inotifywait:
         _criar_inotifywait_daemon()
+        nome_servico = local_daemon.name
     else:
         _criar_normal_daemon()
+        nome_servico = local_timer.name
     subprocess.run('systemctl --user daemon-reload'.split(), check=False)
+    sleep(1)
     subprocess.run(
-        f"systemctl --user enable --now {local_timer.name}".split(),
+        f"systemctl --user enable --now {nome_servico}".split(),
         check=False
     )
 
@@ -67,9 +68,12 @@ def _criar_normal_daemon() -> None:
 
 def desativar_remover_daemon(inotifywait: bool) -> None:
     """Remove e desativa o processo em daemon."""
-    nome_servico = local_daemon.name if inotifywait else local_timer.name
+    nome_servico = local_daemon if inotifywait else local_timer
     desabilitar = f'systemctl --user disable --now {nome_servico}'.split()
+    sleep(1)
     remover_arquivo(local_daemon)
-    remover_arquivo(local_timer)
+    if 'timer' in nome_servico.name:
+        remover_arquivo(local_timer)
     subprocess.run(desabilitar, check=False)
+    sleep(1)
     subprocess.run('systemctl --user daemon-reload'.split(), check=False)

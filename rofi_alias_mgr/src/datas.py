@@ -9,7 +9,7 @@ import sys
 from rich import print as rich_print
 
 
-REGIAO = ZoneInfo('localtime')
+REGIAO = ZoneInfo('America/Sao_Paulo')  # Ajustado para um fuso horário válido
 
 
 def mtime_arquivo(arquivo: Path) -> datetime:

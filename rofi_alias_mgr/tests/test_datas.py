@@ -4,7 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from src.datas import mtime_arquivo, mtime_json
 
-ZONA = ZoneInfo('localtime')
+ZONA = ZoneInfo('America/Sao_Paulo')  # Ajustado para um fuso horário válido
 
 
 def test_mtime_arquivo():

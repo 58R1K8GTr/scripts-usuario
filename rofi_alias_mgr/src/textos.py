@@ -9,7 +9,7 @@ TEXTO_SERVICO_OPCAO1_DESFORMATADO = """\
 Description=Serviço do rofi-alias-mgr
 
 [Service]
-ExecStart=inotifywait -m -e close_write ~/.bash_aliases* | while read caminho evento; do {}
+ExecStart=inotifywait -m -e close_write ~/.bash_aliases* | while read caminho evento; do {}; done
 Restart=always
 
 [Install]
