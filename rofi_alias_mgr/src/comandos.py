@@ -69,7 +69,7 @@ def _criar_normal_daemon() -> None:
 def desativar_remover_daemon(inotifywait: bool) -> None:
     """Remove e desativa o processo em daemon."""
     nome_servico = local_daemon if inotifywait else local_timer
-    desabilitar = f'systemctl --user disable --now {nome_servico}'.split()
+    desabilitar = f'systemctl --user disable --now {nome_servico.name}'.split()
     sleep(1)
     remover_arquivo(local_daemon)
     if 'timer' in nome_servico.name:
