@@ -27,6 +27,8 @@ atualizar | verifica atualizações e escreve nos arquivos. | `-m\|--mostrar` | 
 ativar-daemon | cria e ativa o processo daemon no systemd automaticamente. | `-o\|--otimizado` | ativa o daemon otimizado.
 desativar-daemon | desativa e remove o processo daemon no systemd automaticamente. | `-o\|--otimizado` | desativa o daemon otimizado.
 
+>Obs: daemon otimizado só funciona com o inotifywait do inotify-tools (debian e derivados).
+
 ## Como criar o executável?
 Não é necessário criar o executável, mas se quiser algo mais automático no terminal:
 ```bash
