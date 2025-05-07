@@ -17,22 +17,29 @@ from src.arquivos import (
 
 
 pasta_raiz = Path(__file__).parent.parent
-local_daemons = Path('~/.config/systemd/user').expanduser()
+home = Path('~').expanduser()
+local_daemons = home / '.config/systemd/user'
 local_script = pasta_raiz / 'rofi_alias_mgr.py'
-executavel = Path('~/.local/bin/rofi-alias-mgr').expanduser()
+executavel = home / '~/.local/bin/rofi-alias-mgr'
 local_daemon = local_daemons / 'rofi_alias_mgr_daemon.service'
 local_timer = local_daemons / 'rofi_alias_mgr_daemon.timer'
+local_script_inotifywaitsh = (
+    pasta_raiz / 'arquivos_exemplo/rodar-inotifywait.sh'
+)
+COMANDO_INOTYFYWAIT = f"{local_script_inotifywaitsh}"
 if executavel.exists():
-    COMANDO = f"{str(executavel)} atualizar"
+    COMANDO_NORMAL = f"{str(executavel)} atualizar"
+    COMANDO_INOTYFYWAIT += ' executavel'
 else:
-    COMANDO = f"/usr/bin/python3 {local_script} atualizar"
+    COMANDO_NORMAL = f"/usr/bin/python3 {local_script} atualizar"
 
 
 def criar_rodar_daemon(inotifywait: bool) -> None:
     """Cria e roda o processo daemon."""
     # não sobreescrever caso o daemon estiver rodando
     if local_daemon.exists():
-        return rich_print('[red]Daemon existe, remova-o[/]')
+        rich_print('[red]Daemon existe, remova-o[/]')
+        return
     if inotifywait:
         _criar_inotifywait_daemon()
         nome_servico = local_daemon.name
@@ -50,7 +57,9 @@ def criar_rodar_daemon(inotifywait: bool) -> None:
 def _criar_inotifywait_daemon() -> None:
     """Cria o daemon que usa o programa inotifywait do inotify-tools."""
     if inotify_instalado():
-        texto_servico = TEXTO_SERVICO_OPCAO1_DESFORMATADO.format(COMANDO)
+        texto_servico = TEXTO_SERVICO_OPCAO1_DESFORMATADO.format(
+            COMANDO_INOTYFYWAIT
+        )
         criar_arquivo(texto_servico, local_daemon)
     else:
         rich_print(
@@ -61,7 +70,7 @@ def _criar_inotifywait_daemon() -> None:
 
 def _criar_normal_daemon() -> None:
     """Cria o daemon que usa esse programa como padrão."""
-    texto_servico = TEXTO_SERVICO_OPCAO2_DESFORMATADO.format(COMANDO)
+    texto_servico = TEXTO_SERVICO_OPCAO2_DESFORMATADO.format(COMANDO_NORMAL)
     criar_arquivo(texto_servico, local_daemon)
     criar_arquivo(TEXTO_TIMER2, local_timer)
 
