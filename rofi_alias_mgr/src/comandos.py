@@ -14,13 +14,13 @@ from src.textos import (
 from src.arquivos import (
     criar_arquivo, remover_arquivo, inotify_instalado
 )
+from src.constantes import HOME
 
 
 pasta_raiz = Path(__file__).parent.parent
-home = Path('~').expanduser()
-local_daemons = home / '.config/systemd/user'
+local_daemons = HOME / '.config/systemd/user'
 local_script = pasta_raiz / 'rofi_alias_mgr.py'
-executavel = home / '~/.local/bin/rofi-alias-mgr'
+executavel = HOME / '~/.local/bin/rofi-alias-mgr'
 local_daemon = local_daemons / 'rofi_alias_mgr_daemon.service'
 local_timer = local_daemons / 'rofi_alias_mgr_daemon.timer'
 local_script_inotifywaitsh = (
