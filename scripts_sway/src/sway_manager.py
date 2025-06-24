@@ -23,8 +23,8 @@ class SwayManager:
         )
 
     @classmethod
-    def create(cls, con: Connection) -> "SwayManager":
-        """Asynchronously create and initialize a SwayManager instance."""
+    def create(cls, con: Connection) -> "SwayManager":  # type: ignore
+        """Create and initialize a SwayManager instance."""
         outputs = con.get_outputs()
         output = next(filter(lambda x: x.active, outputs))
         rect = (output.rect.width, output.rect.height)
@@ -40,11 +40,11 @@ class SwayManager:
         pattern = f"{mark_name}_.*"
         tree_root = self.__con.get_tree()
         marked_containers = tree_root.find_marked(pattern)
-        marked_containers = list(map(
+        window_cons = list(map(
             WindowCon, filter(lambda x: x.pid is not None, marked_containers)
         ))
-        marked_containers.sort(key=lambda x: int(x.mark.split('_')[-1]))
-        return marked_containers
+        window_cons.sort(key=lambda x: int(x.mark.split('_')[-1]))
+        return window_cons
 
     @property
     def mark_names(self) -> list[MarkType]:
@@ -59,14 +59,18 @@ class SwayManager:
         return NoWindowCon()
 
     def __generate_new_mark_name(self, name: MarkType) -> str:
-        """Generate a new mark name."""
-        marked_names = list(filter(
-            lambda x: x.startswith(f"{name}_"),
-            sorted(self.__con.get_marks())
-        ))
-        if len(marked_names) == 0:
+        """Generate a new unique mark name for the given type."""
+        all_marks = self.__con.get_marks()
+        existing_numeric_suffixes = [
+            int(mark.split('_')[-1])
+            for mark in all_marks
+            if mark.startswith(f"{name}_")
+        ]
+
+        if not existing_numeric_suffixes:
             return f"{name}_1"
-        last_number = int(marked_names[-1].split('_')[-1])
+
+        last_number = max(existing_numeric_suffixes)
         new_number = last_number + 1
         return f"{name}_{new_number}"
 

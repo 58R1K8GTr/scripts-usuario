@@ -11,7 +11,7 @@ from src.sway_manager import SwayManager
 
 
 def main():
-    """The asynchronous main function."""
+    """The main function to run the Sway script."""
     ipc = Connection(auto_reconnect=True)
     manager = SwayManager.create(ipc)
     handler = SwayBindingHandler(manager)

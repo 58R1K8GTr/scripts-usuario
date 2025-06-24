@@ -2,7 +2,7 @@
 
 
 from abc import ABC, abstractmethod
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import Mock
 
 from i3ipc import Con
 from i3ipc.model import Rect
@@ -142,7 +142,7 @@ class NoWindowCon(Window):
     @property
     def rect(self) -> Mock:
         self.__default_execution('rect')
-        return AsyncMock(spec=Rect)
+        return Mock(spec=Rect)
 
     @property
     def float_type(self) -> str:

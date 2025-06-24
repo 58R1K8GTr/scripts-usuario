@@ -1,22 +1,16 @@
 """Tests for GroupFormatWindowState and HorizontalLineState."""
-from unittest.mock import Mock, MagicMock, call
+from unittest.mock import MagicMock
 
 import pytest
 
-from src.group_format_window import HorizontalLineState, GroupFormatWindowState
+from src.group_format_window import HorizontalLineState
 from src.types_project import NumberPosition, MarkSizeType
 from src.windows import Window
-from time import sleep
 
 
 @pytest.fixture
 def default_screen_size():
     return (1920, 1080)
-
-
-@pytest.fixture
-def default_gap():
-    return 10
 
 
 @pytest.fixture
@@ -30,9 +24,9 @@ def initial_positions():
 
 
 @pytest.fixture
-def horizontal_line_state(default_screen_size, default_gap, default_mark_sizes, initial_positions):
+def horizontal_line_state(default_screen_size, default_mark_sizes, initial_positions):
     """Fixture for HorizontalLineState instance."""
-    return HorizontalLineState(default_screen_size, default_gap, default_mark_sizes, initial_positions)
+    return HorizontalLineState(default_screen_size, default_mark_sizes, initial_positions)
 
 
 def test_group_format_window_state_movements(horizontal_line_state):
