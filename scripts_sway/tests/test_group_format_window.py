@@ -1,4 +1,5 @@
 """Tests for GroupFormatWindowState and HorizontalLineState."""
+
 from unittest.mock import MagicMock
 
 import pytest
@@ -15,7 +16,7 @@ def default_screen_size():
 
 @pytest.fixture
 def default_mark_sizes() -> MarkSizeType:
-    return {'popup': [200, 150]}
+    return {'popup': [384, 216]}  # 20%
 
 
 @pytest.fixture
@@ -27,6 +28,33 @@ def initial_positions():
 def horizontal_line_state(default_screen_size, default_mark_sizes, initial_positions):
     """Fixture for HorizontalLineState instance."""
     return HorizontalLineState(default_screen_size, default_mark_sizes, initial_positions)
+
+
+@pytest.fixture
+def windows_data(default_mark_sizes, default_screen_size):
+    """Fixture to return windows data."""
+    windows_number = 26
+    windows = [MagicMock(spec=Window) for _ in range(windows_number)]
+    mark_name = 'popup'
+
+    mark_width, mark_height = default_mark_sizes[mark_name]
+    screen_width, screen_height = default_screen_size
+    max_x_windows = screen_width // mark_width
+    max_y_windows = screen_height // mark_height
+
+    def calculate(number_window) -> tuple[int, int]:
+        # Expected for window1 (n=0)
+        expected_x1 = (
+            screen_width - mark_width * (number_window % max_x_windows + 1)
+        )
+        expected_y1 = (
+            screen_height - mark_height *
+            (number_window // max_x_windows % max_y_windows + 1)
+        )
+        return (expected_x1, expected_y1)
+
+    indexes = [calculate(n) for n in range(windows_number)]
+    return (windows, indexes)
 
 
 def test_group_format_window_state_movements(horizontal_line_state):
@@ -144,3 +172,13 @@ def test_horizontal_line_state_organize_position_not_one(horizontal_line_state):
     horizontal_line_state._positions.horizontal = 3
     horizontal_line_state.organize(windows, mark_name)
     mock_window.move.assert_not_called()
+
+
+def test_horizontal_line_left_organize_move(horizontal_line_state, windows_data):
+    """Test organizing all windows on 1, 1."""
+    windows, indexes = windows_data
+    horizontal_line_state.organize(windows, 'popup')
+    for number in range(26):
+        x, y = indexes[number]
+        command = f"absolute position {x} {y}"
+        windows[number].move.assert_called_once_with(command)
