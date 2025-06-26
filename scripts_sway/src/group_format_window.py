@@ -86,6 +86,22 @@ class HorizontalLineState(GroupFormatWindowState):
             window.move(f"absolute position {x} {y}").execute()
             print(x, y, window.mark)
 
+    def __right_organize(
+        self, windows: list[WindowCon], mark_size: list[int]
+    ) -> None:
+        """Organize windows from right to left."""
+        window_width = mark_size[0]
+        window_height = mark_size[1]
+        max_x_windows = self._screen_size[0] // window_width
+        max_y_windows = self._screen_size[1] // window_height
+        for n, window in enumerate(windows):
+            x_up = n % max_x_windows
+            y_up = n // max_x_windows % max_y_windows + 1
+            x = window_width * x_up % self._screen_size[0]
+            y = self._screen_size[1] - window_height * y_up
+            window.move(f"absolute position {x} {y}").execute()
+            print(x, y, window.mark)
+
     def organize(
         self, windows: list[WindowCon], mark_name: MarkType
     ) -> None:
@@ -96,8 +112,9 @@ class HorizontalLineState(GroupFormatWindowState):
         mark_size = self._mark_sizes[mark_name]
         if positions.horizontal == 1:
             self.__left_organize(windows, mark_size)
-        # if positions.horizontal == 3:
-        #     self.__right_organize(windows, mark_size)
+        if positions.horizontal == 3:
+            self.__right_organize(windows, mark_size)
+        print(positions)
 
 
 # square, plus?, 4corners?

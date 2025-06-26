@@ -25,8 +25,8 @@ MarkSizeType = dict[MarkType, list[int]]
 @dataclass
 class NumberPosition:
     """Position of groups"""
-    vertical: NumberPositionType
     horizontal: NumberPositionType
+    vertical: NumberPositionType
 
     def __post_init__(self):
         range_int = range(1, 4)
@@ -37,3 +37,10 @@ class NumberPosition:
 
     def __iter__(self) -> Iterator:
         return iter((self.horizontal, self.vertical))
+
+    def __eq__(self, other: 'NumberPosition') -> bool:
+        conditions = (
+            self.horizontal == other.horizontal,
+            self.vertical == other.vertical
+        )
+        return all(conditions)

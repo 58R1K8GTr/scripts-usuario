@@ -30,33 +30,6 @@ def horizontal_line_state(default_screen_size, default_mark_sizes, initial_posit
     return HorizontalLineState(default_screen_size, default_mark_sizes, initial_positions)
 
 
-@pytest.fixture
-def windows_data(default_mark_sizes, default_screen_size):
-    """Fixture to return windows data."""
-    windows_number = 26
-    windows = [MagicMock(spec=Window) for _ in range(windows_number)]
-    mark_name = 'popup'
-
-    mark_width, mark_height = default_mark_sizes[mark_name]
-    screen_width, screen_height = default_screen_size
-    max_x_windows = screen_width // mark_width
-    max_y_windows = screen_height // mark_height
-
-    def calculate(number_window) -> tuple[int, int]:
-        # Expected for window1 (n=0)
-        expected_x1 = (
-            screen_width - mark_width * (number_window % max_x_windows + 1)
-        )
-        expected_y1 = (
-            screen_height - mark_height *
-            (number_window // max_x_windows % max_y_windows + 1)
-        )
-        return (expected_x1, expected_y1)
-
-    indexes = [calculate(n) for n in range(windows_number)]
-    return (windows, indexes)
-
-
 def test_group_format_window_state_movements(horizontal_line_state):
     """Test movement methods of GroupFormatWindowState."""
     # Initial state: horizontal=1, vertical=1
@@ -158,7 +131,7 @@ def test_horizontal_line_state_organize_multiple_windows(horizontal_line_state, 
         f"absolute position {expected_x2} {expected_y2}")
 
 
-def test_horizontal_line_state_organize_position_not_one(horizontal_line_state):
+def test_horizontal_line_state_organize_position_not_one(horizontal_line_state, default_screen_size, default_mark_sizes):
     """Test organize when horizontal position is not 1."""
     mock_window = MagicMock(spec=Window)
     windows = [mock_window]
@@ -174,11 +147,28 @@ def test_horizontal_line_state_organize_position_not_one(horizontal_line_state):
     mock_window.move.assert_not_called()
 
 
-def test_horizontal_line_left_organize_move(horizontal_line_state, windows_data):
+def test_horizontal_line_left_organize_move(horizontal_line_state):
     """Test organizing all windows on 1, 1."""
-    windows, indexes = windows_data
+    windows = [MagicMock(spec=Window) for _ in range(26)]
     horizontal_line_state.organize(windows, 'popup')
-    for number in range(26):
-        x, y = indexes[number]
+    positions = (0, 5, 25)
+    coordenates = ((1536, 864), (1536, 648), (1536, 864))
+    for position, coordenate in zip(positions, coordenates):
+        x, y = coordenate
         command = f"absolute position {x} {y}"
-        windows[number].move.assert_called_once_with(command)
+        windows[position].move.assert_called_once_with(command)
+
+
+def test_horizontal_line_right_organize_move(horizontal_line_state):
+    """Test organizing all windows on 3, 1."""
+    windows = [MagicMock(spec=Window) for _ in range(26)]
+    horizontal_line_state.move_left()
+    horizontal_line_state.move_left()
+    assert horizontal_line_state._positions == NumberPosition(3, 1)
+    horizontal_line_state.organize(windows, 'popup')
+    positions = (0, 5, 25)
+    coordenates = ((0, 864), (0, 648), (0, 864))
+    for position, coordenate in zip(positions, coordenates):
+        x, y = coordenate
+        command = f"absolute position {x} {y}"
+        windows[position].move.assert_called_once_with(command)
