@@ -12,7 +12,6 @@ from src.types_project import (
     NumberPosition, NumberPositionType, MarkType, MarkSizeType
 )
 from src.windows import Window
-from src.utils import slice_group
 
 
 class GroupFormatWindowState(ABC):
@@ -66,13 +65,11 @@ class HorizontalLineState(GroupFormatWindowState):
         functions_x = cycle((add, sub, add, sub, add))
         iterator = enumerate(zip(windows, functions_x))
         for n, (window, function_x) in iterator:
-            x = abs(
-                self._screen_size[0] -
+            x = self._screen_size[0] - \
                 (window_width * function_x(3, (1 + n % 5) // 2))
-            )
-            y = abs(self._screen_size[1] - (window_height * (1 + n // 5 % 5)))
+            y = self._screen_size[1] - (window_height * (1 + n // 5 % 5))
             window.move(f"absolute position {x} {y}").execute()
-            print(x, y, window.mark)
+            # print(x, y, window.mark)
 
     def __left_organize(
         self, windows: list[Window], mark_size: list[int]

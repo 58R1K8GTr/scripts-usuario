@@ -195,7 +195,7 @@ class WindowCon(Window):
     def move(self, location: str) -> 'Window':
         rect = self.__con.rect
         base = f"{rect.x} {rect.y}"
-        if base == location:
+        if location.endswith(base):
             return self
         self.__commands.append(f"move {location}")
         return self

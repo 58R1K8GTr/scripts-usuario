@@ -33,7 +33,7 @@ class SwayBindingHandler:
         handler_method = self.__bindings_map.get(bind_tuple)
         if handler_method:
             handler_method(connection)
-        print(bind_tuple)
+        # print(bind_tuple)
 
     def move_popup_left(self, *_) -> None:
         """Move windows to left."""
