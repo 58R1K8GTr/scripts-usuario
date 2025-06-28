@@ -3,14 +3,16 @@
 
 from abc import ABC, abstractmethod
 from typing import cast
+from itertools import cycle
+from operator import add, sub
 
 from i3ipc.model import Rect
 
 from src.types_project import (
     NumberPosition, NumberPositionType, MarkType, MarkSizeType
 )
-from src.windows import WindowCon
-# from src.utils import slice_group
+from src.windows import Window
+from src.utils import slice_group
 
 
 class GroupFormatWindowState(ABC):
@@ -56,26 +58,27 @@ class GroupFormatWindowState(ABC):
 class HorizontalLineState(GroupFormatWindowState):
     """A representation of a group in horizontal line format."""
 
-    # def __center_organize(
-    #     self, windows: list[WindowCon], mark_size: list[int]
-    # ) -> None:
-    #     """Organize windows to center."""
-    #     window_width = mark_size[0]
-    #     window_height = mark_size[1]
-    #     max_x_windows = self._screen_size[0] // window_width
-    #     windows[0].move(f"absolute position {x} {y}").execute()
-    #     for n, window in enumerate(windows[1:]):
-    #         x = self._screen_size[0] - window_width * (n % max_x_windows + 1)
-    #         y = self._screen_size[1] - window_height * (n // max_x_windows + 1)
-    #         window.move(f"absolute position {x} {y}").execute()
-    #         print(x, y, window.mark)
+    def __center_organize(
+        self, windows: list[Window], mark_size: list[int]
+    ) -> None:
+        """Organize windows to center."""
+        window_width, window_height = mark_size
+        functions_x = cycle((add, sub, add, sub, add))
+        iterator = enumerate(zip(windows, functions_x))
+        for n, (window, function_x) in iterator:
+            x = abs(
+                self._screen_size[0] -
+                (window_width * function_x(3, (1 + n % 5) // 2))
+            )
+            y = abs(self._screen_size[1] - (window_height * (1 + n // 5 % 5)))
+            window.move(f"absolute position {x} {y}").execute()
+            print(x, y, window.mark)
 
     def __left_organize(
-        self, windows: list[WindowCon], mark_size: list[int]
+        self, windows: list[Window], mark_size: list[int]
     ) -> None:
         """Organize windows from right to left."""
-        window_width = mark_size[0]
-        window_height = mark_size[1]
+        window_width, window_height = mark_size
         max_x_windows = self._screen_size[0] // window_width
         max_y_windows = self._screen_size[1] // window_height
         for n, window in enumerate(windows):
@@ -87,11 +90,10 @@ class HorizontalLineState(GroupFormatWindowState):
             print(x, y, window.mark)
 
     def __right_organize(
-        self, windows: list[WindowCon], mark_size: list[int]
+        self, windows: list[Window], mark_size: list[int]
     ) -> None:
         """Organize windows from right to left."""
-        window_width = mark_size[0]
-        window_height = mark_size[1]
+        window_width, window_height = mark_size
         max_x_windows = self._screen_size[0] // window_width
         max_y_windows = self._screen_size[1] // window_height
         for n, window in enumerate(windows):
@@ -103,7 +105,7 @@ class HorizontalLineState(GroupFormatWindowState):
             print(x, y, window.mark)
 
     def organize(
-        self, windows: list[WindowCon], mark_name: MarkType
+        self, windows: list[Window], mark_name: MarkType
     ) -> None:
         # horizontal, vertical
         if len(windows) == 0:
@@ -112,6 +114,8 @@ class HorizontalLineState(GroupFormatWindowState):
         mark_size = self._mark_sizes[mark_name]
         if positions.horizontal == 1:
             self.__left_organize(windows, mark_size)
+        if positions.horizontal == 2:
+            self.__center_organize(windows, mark_size)
         if positions.horizontal == 3:
             self.__right_organize(windows, mark_size)
         print(positions)

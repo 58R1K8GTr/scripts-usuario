@@ -35,12 +35,12 @@ class SwayManager:
         }
         return cls(con, rect, mark_sizes)
 
-    def get_windows_by_mark(self, mark_name: MarkType) -> list[WindowCon]:
+    def get_windows_by_mark(self, mark_name: MarkType) -> list[Window]:
         """Returns popup windows."""
         pattern = f"{mark_name}_.*"
         tree_root = self.__con.get_tree()
         marked_containers = tree_root.find_marked(pattern)
-        window_cons = list(map(
+        window_cons: list[Window] = list(map(
             WindowCon, filter(lambda x: x.pid is not None, marked_containers)
         ))
         window_cons.sort(key=lambda x: int(x.mark.split('_')[-1]))

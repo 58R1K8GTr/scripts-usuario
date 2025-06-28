@@ -172,3 +172,18 @@ def test_horizontal_line_right_organize_move(horizontal_line_state):
         x, y = coordenate
         command = f"absolute position {x} {y}"
         windows[position].move.assert_called_once_with(command)
+
+
+def test_horizontal_line_center_organize_move(horizontal_line_state):
+    """Test organizing all windows on 2, 1."""
+    windows = [MagicMock(spec=Window) for _ in range(26)]
+    horizontal_line_state.move_left()
+    assert horizontal_line_state._positions == NumberPosition(2, 1)
+    horizontal_line_state.organize(windows, 'popup')
+    positions = (0, 1, 2, 4, 5, 24, 25)
+    coordenates = ((768, 864), (1152, 864), (384, 864), (384, 648),
+                   (1536, 648), (0, 0), (768 864))
+    for position, coordenate in zip(positions, coordenates):
+        x, y = coordenate
+        command = f"absolute position {x} {y}"
+        windows[position].move.assert_called_once_with(command)
