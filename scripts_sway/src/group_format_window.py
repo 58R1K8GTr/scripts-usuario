@@ -45,12 +45,12 @@ class GroupFormatWindowState(ABC):
 
     def move_up(self) -> None:
         """Move items to up."""
-        value = max(1, self._positions.vertical + 1)
+        value = max(1, self._positions.vertical - 1)
         self._positions.vertical = cast(NumberPositionType, value)
 
     def move_down(self) -> None:
         """Move items to dowm."""
-        value = min(3, self._positions.vertical - 1)
+        value = min(3, self._positions.vertical + 1)
         self._positions.vertical = cast(NumberPositionType, value)
 
 
@@ -69,18 +69,18 @@ class HorizontalLineState(GroupFormatWindowState):
                 (window_width * function_x(3, (1 + n % 5) // 2))
             y = self._screen_size[1] - (window_height * (1 + n // 5 % 5))
             window.move(f"absolute position {x} {y}").execute()
-            # print(x, y, window.mark)
+            print(x, y, window.mark)
 
     def __left_organize(
         self, windows: list[Window], mark_size: list[int]
     ) -> None:
         """Organize windows from right to left."""
         window_width, window_height = mark_size
-        max_x_windows = self._screen_size[0] // window_width
-        max_y_windows = self._screen_size[1] // window_height
+        max_quantity_x = self._screen_size[0] // window_width
+        max_quantity_y = self._screen_size[1] // window_height
         for n, window in enumerate(windows):
-            x_up = n % max_x_windows + 1
-            y_up = n // max_x_windows % max_y_windows + 1
+            x_up = n % max_quantity_x + 1
+            y_up = n // max_quantity_x % max_quantity_y + 1
             x = self._screen_size[0] - window_width * x_up
             y = self._screen_size[1] - window_height * y_up
             window.move(f"absolute position {x} {y}").execute()
@@ -91,11 +91,11 @@ class HorizontalLineState(GroupFormatWindowState):
     ) -> None:
         """Organize windows from right to left."""
         window_width, window_height = mark_size
-        max_x_windows = self._screen_size[0] // window_width
-        max_y_windows = self._screen_size[1] // window_height
+        max_quantity_x = self._screen_size[0] // window_width
+        max_quantity_y = self._screen_size[1] // window_height
         for n, window in enumerate(windows):
-            x_up = n % max_x_windows
-            y_up = n // max_x_windows % max_y_windows + 1
+            x_up = n % max_quantity_x
+            y_up = n // max_quantity_x % max_quantity_y + 1
             x = window_width * x_up % self._screen_size[0]
             y = self._screen_size[1] - window_height * y_up
             window.move(f"absolute position {x} {y}").execute()
@@ -117,5 +117,68 @@ class HorizontalLineState(GroupFormatWindowState):
             self.__right_organize(windows, mark_size)
         print(positions)
 
+
+class VerticalLineState(GroupFormatWindowState):
+    """A representation of a group in vertical line format."""
+
+    def __center_organize(
+        self, windows: list[Window], mark_size: list[int]
+    ) -> None:
+        """Organize windows to center."""
+        window_width, window_height = mark_size
+        functions_x = cycle((add, sub, add, sub, add))
+        iterator = enumerate(zip(windows, functions_x))
+        for n, (window, function_x) in iterator:
+            x = self._screen_size[0] - \
+                (window_width * function_x(3, (1 + n % 5) // 2))
+            y = self._screen_size[1] - (window_height * (1 + n // 5 % 5))
+            window.move(f"absolute position {x} {y}").execute()
+            print(x, y, window.mark)
+
+    def __top_organize(
+        self, windows: list[Window], mark_size: list[int]
+    ) -> None:
+        """Organize windows from right to left."""
+        window_width, window_height = mark_size
+        max_quantity_x = self._screen_size[0] // window_width
+        max_quantity_y = self._screen_size[1] // window_height
+        for n, window in enumerate(windows):
+            x_up = n // max_quantity_x % max_quantity_y
+            y_up = n % max_quantity_x
+            y = window_height * y_up
+            x = window_width * x_up
+            window.move(f"absolute position {x} {y}").execute()
+            print(x, y, window.mark)
+
+    def __bottom_organize(
+        self, windows: list[Window], mark_size: list[int]
+    ) -> None:
+        """Organize windows from right to left."""
+        window_width, window_height = mark_size
+        max_quantity_x = self._screen_size[0] // window_width
+        max_quantity_y = self._screen_size[1] // window_height
+        for n, window in enumerate(windows):
+            x_up = n // max_quantity_y % max_quantity_x
+            y_up = max_quantity_y - n % max_quantity_y - 1
+            y = window_height * y_up
+            x = window_width * x_up
+            window.move(f"absolute position {x} {y}").execute()
+            print(x, y, window.mark)
+
+    def organize(
+        self, windows: list[Window], mark_name: MarkType
+    ) -> None:
+        # horizontal, vertical
+        if len(windows) == 0:
+            return
+        positions = self._positions
+        mark_size = self._mark_sizes[mark_name]
+        if positions.vertical == 1:
+            self.__top_organize(windows, mark_size)
+        if positions.vertical == 2:
+            self.__center_organize(windows, mark_size)
+        if positions.vertical == 3:
+            self.__bottom_organize(windows, mark_size)
+        print(positions)
 
 # square, plus?, 4corners?
